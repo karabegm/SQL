@@ -33,7 +33,34 @@ LEFT OUTER JOIN BIT_DB.customers ON BIT_DB.customers.order_id=BIT_DB.FebSales.or
 WHERE Quantity>2 AND Quantity<>"Quantity Ordered" AND acctnum IS NOT NULL
 Group By acctnum;
 
-SELECT count(acctnum) AS total_customers, ROUND(AVG(Quantity*price),2) AS Avg_spent
-FROM BIT_DB.FebSales 
-LEFT OUTER JOIN BIT_DB.customers ON BIT_DB.customers.order_id=BIT_DB.FebSales.orderID
-WHERE Quantity>2 AND Quantity<>"Quantity Ordered" AND acctnum IS NOT NULL;
+
+-- List all the products sold in Los Angeles in February, and include how many of each were sold --
+SELECT Product, Sum(Quantity) AS total_sold 
+FROM BIT_DB.FebSales Where location like "%Los Angeles%"
+Group by Product;
+
+--Which locations in New York received at least 3 orders in January, and how many orders did they each receive? (Hint: use HAVING).
+SELECT location, count(orderID) AS total_orders
+FROM BIT_DB.JanSales WHERE location LIKE "%NY%"
+AND length(orderid)=6 AND orderid<>'Order ID'
+GROUP BY location HAVING count(orderID)>=3;
+
+--How many of each type of headphone were sold in February?
+SELECT Product, sum(Quantity) AS total_sold, price, sum(Quantity)*price AS Revenue
+FROM BIT_DB.FebSales WHERE Product LIKE "%Headphones%"
+Group By Product;
+
+--What was the average amount spent per account in February?
+SELECT sum(Quantity*price)/count(acctnum) as avg_spent
+FROM BIT_DB.FebSales LEFT JOIN BIT_DB.customers ON BIT_DB.FebSales.orderID=BIT_DB.customers.order_id
+WHERE length(orderid)=6 AND orderid<>'Order ID';
+
+--What was the average quantity of products purchased per account in February?
+SELECT count(acctnum), sum(Quantity)/count(acctnum) as avg_purchased
+FROM BIT_DB.customers RIGHT JOIN BIT_DB.FebSales ON BIT_DB.customers.order_id=BIT_DB.FebSales.orderID;
+
+--Which product brought in the most revenue in January and how much revenue did it bring in total?
+SELECT Product, sum(quantity) AS total_sold, price, Round(sum(quantity)*price) AS product_revenue
+FROM BIT_DB.JanSales
+GROUP BY Product ORDER BY product_revenue desc LIMIT 1; 
+
