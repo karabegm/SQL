@@ -1,0 +1,36 @@
+//SQL project comparing sales in different months across an orders database//
+
+SELECT * FROM BIT_DB.customers;
+SELECT * FROM BIT_DB.JanSales LIMIT 10;
+SELECT * FROM BIT_DB.customers
+WHERE length(order_id)=6 AND order_id<>"Order ID";
+
+SELECT count(orderID) AS order_count FROM BIT_DB.JanSales
+WHERE orderID<>"Order ID" AND length(orderID)=6;
+
+SELECT count(*) AS order_count FROM BIT_DB.JanSales 
+WHERE orderID<>"Order ID" AND length(orderID)=6
+AND Product="iPhone";
+
+SELECT BIT_DB.customers.acctnum FROM BIT_DB.customers
+Inner JOIN BIT_DB.FebSales ON BIT_DB.customers.order_id=BIT_DB.FebSales.orderID;
+
+SELECT Product, price, sum(quantity) AS total_sold 
+FROM BIT_DB.JanSales Group By Product ORDER BY price Asc; 
+
+SELECT Product, price, sum(Quantity) AS total_sold, ROUND(sum(Quantity)*price,2) AS Revenue 
+FROM BIT_DB.JanSales Group By Product; 
+
+SELECT Product, sum(Quantity), price, sum(Quantity)*price AS Revenue, location 
+FROM BIT_DB.FebSales WHERE location="548 Lincoln St, Seattle, WA 98101";
+
+SELECT acctnum, sum(Quantity) AS total_bought, Round(sum(price*Quantity), 2) AS amount_spent
+FROM BIT_DB.FebSales 
+LEFT OUTER JOIN BIT_DB.customers ON BIT_DB.customers.order_id=BIT_DB.FebSales.orderID
+WHERE Quantity>2 AND Quantity<>"Quantity Ordered" AND acctnum IS NOT NULL
+Group By acctnum;
+
+SELECT count(acctnum) AS total_customers, ROUND(AVG(Quantity*price),2) AS Avg_spent
+FROM BIT_DB.FebSales 
+LEFT OUTER JOIN BIT_DB.customers ON BIT_DB.customers.order_id=BIT_DB.FebSales.orderID
+WHERE Quantity>2 AND Quantity<>"Quantity Ordered" AND acctnum IS NOT NULL;
