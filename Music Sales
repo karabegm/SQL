@@ -1,0 +1,95 @@
+-- This is from a database full of music sales (tracks, artists, albums, and the corresponding customer and employee information)
+
+-- Customers not in the USA --
+SELECT FirstName, LastName, Customerid, Country
+From customers
+Where Country != 'USA';
+
+-- Customers from Brazil
+SELECT FirstName, LastName, Customerid, Country
+From customers
+Where Country  = 'Brazil';
+
+-- Invoices for customers from Brazil
+SELECT cust.firstname, cust.lastname, inv.invoiceid, inv.invoicedate, 
+inv.billingcountry, inv.total
+FROM invoices inv
+LEFT JOIN customers cust ON inv.customerid = cust.customerid
+Where cust.country = 'Brazil';
+
+-- List of Sales Agents
+SELECT firstname, lastname, employeeid, title
+FROM employees
+Where title LIKE 'Sales % Agent';
+
+-- List of Invoices associated with each Sales Agent
+SELECT emp.lastname, emp.firstname, emp.title, inv.invoiceid,
+inv.invoicedate, inv.total
+FROM customers cust
+Join employees emp ON cust.supportrepid = emp.employeeid
+Join invoices inv ON cust.customerid = inv.customerid
+Where title LIKE 'Sales%Agent';
+
+-- List of invoices, the associated customer and agent
+SELECT inv.invoiceid, inv.invoicedate, inv.total, cust.firstname As Cust_firstname, cust.lastname AS Cust_lastname, 
+cust.country, emp.firstname AS employee_name, emp.lastname AS employee_lastname
+FROM customers cust
+Join employees emp ON cust.supportrepid = emp.employeeid
+Join invoices inv ON cust.customerid = inv.customerid;
+
+-- Invoices from 2009
+Select * From invoices
+Where invoicedate LIKE '2009%';
+
+-- How many invoices were in 2009? What was the total sales? 
+Select count(invoiceid) AS total_invoices, Round(sum(total),2) AS total_sales
+From invoices
+Where invoicedate LIKE '2009%';
+
+-- List of tracks with the associated invoice
+Select tracks.TrackId, tracks.Name, inv.invoiceid
+From invoice_items
+Join invoices inv ON invoice_items.InvoiceId = inv.invoiceid
+Join tracks ON invoice_items.TrackId = tracks.TrackId;
+
+-- List of purchased tracks with the associated artist name
+SELECT tracks.TrackId AS trackid, tracks.Name as trackname, artists.Name as artist, 
+invoice_items.InvoiceId AS invoiceid
+FROM albums
+LEFT Join tracks ON albums.AlbumId = tracks.AlbumId
+LEFT Join artists ON albums.ArtistId = artists.ArtistId
+LEFT Join invoice_items ON tracks.TrackId = invoice_items.TrackId
+Where invoiceid IS NOT NULL;
+
+-- List of tracks, albums, media type, and genre
+SELECT tracks.TrackId, tracks.Name, albums.Title AS album_title, artists.Name AS artist, 
+media.name AS media_type, genres.Name AS genre
+FROM tracks
+Left Join albums ON tracks.AlbumId=albums.AlbumId
+Left Join media_types media on tracks.MediaTypeId= media.MediaTypeId
+Left Join genres ON tracks.GenreId=genres.GenreId
+Left Join artists ON albums.ArtistId=artists.ArtistId;
+
+-- Total sales per sales agent
+SELECT emp.employeeid, emp.firstname, emp.lastname, emp.title, Round(sum(inv.total),2) as total_sales
+FROM employees emp
+Left Join customers cust ON emp.EmployeeId=cust.SupportRepId
+Left Join invoices inv ON cust.CustomerId=inv.CustomerId
+Where title LIKE 'sales%agent'
+Group by emp.employeeid Order by total_sales asc;
+
+--Which sales agent made the most dollars in sales in 2009?
+SELECT emp.employeeid, emp.firstname, emp.lastname, emp.title, 
+count(inv.invoiceid) AS total_sales, Round(sum(inv.total),2) as sales_revenue,
+man.firstname AS lead_name, man.lastname AS lead_lastname, man.title AS lead_title
+FROM employees emp
+Left Join customers cust ON emp.EmployeeId=cust.SupportRepId
+Left Join invoices inv ON cust.CustomerId=inv.CustomerId
+Left Join employees man ON emp.Reportsto = man.employeeid
+Where emp.title LIKE 'sales%agent' AND inv.invoicedate LIKE '%2009%'
+Group by emp.employeeid Order by total_sales desc LIMIT 1;
+
+
+
+
+
