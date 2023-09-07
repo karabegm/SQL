@@ -1,0 +1,55 @@
+*/
+This dataset from Kaggle lists brands and models of smart phones as well as all of the diagnostic information 
+relevant to the model. 
+
+This dataset is sourced from the Smartprix website. For educational use only, subject to website terms. 
+Respect copyright and data privacy.
+/*
+
+Select * From Smartphones;
+
+-- What models are available and for what price?
+SELECT brand_name, model, price
+FROM Smartphones
+Group by model;
+
+-- Which processor brands have the fastest speed?
+Select processor_brand, processor_speed
+From Smartphones 
+Group by processor_brand
+Order By processor_speed desc LIMIT 10;
+
+-- Which models have the fastest processors?
+SELECT model, processor_brand, processor_speed
+FROM Smartphones
+Group by model
+Order by processor_speed desc Limit 20;
+
+-- How does processor speed, battery life, and memory capacity compare against price?
+Select brand_name, model, price, processor_speed, battery_capacity, internal_memory
+FROM smartphones
+Group by model
+Order by price desc;
+
+-- Which model is the fastest charging?
+SELECT brand_name, model, battery_capacity, fast_charging
+From SmartPhones 
+Order by fast_charging desc, battery_capacity desc Limit 1;
+
+-- Whats the most popular operating system?
+SELECT os, count(*)
+FROM Smartphones
+Group by os;
+
+-- Do brands use more front cameras or more rear cameras?
+Select brand_name, round(avg(num_front_cameras)) AS avg_front_cameras, 
+round(avg(num_rear_cameras)) as avg_rear_cameras
+from SmartPhones
+Group by brand_name
+order by avg_front_cameras desc, avg_rear_cameras desc, brand_name asc;
+
+-- Which phones have the largest screen size? and the best refresh rate?
+Select brand_name, model, screen_size, resolution, refresh_rate
+From SmartPhones
+Order by screen_size desc, refresh_rate desc
+Limit 10;
